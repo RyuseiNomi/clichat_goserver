@@ -1,0 +1,15 @@
+version: '3'
+services:
+  server:
+    container_name: chat-server
+    tty: true
+    ports:
+      - 9000:8000
+    build: ./
+    volumes:
+      - ./../:/go/src/app
+
+networks:
+  default:
+    external:
+      name: clichat_network_1
