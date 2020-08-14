@@ -44,6 +44,7 @@ func (r *room) Run() {
 			for client := range r.clients {
 				select {
 				case client.send <- msg:
+					log.Println("メッセージを受信しました:", string(msg))
 				default:
 					delete(r.clients, client)
 					close(client.send)
