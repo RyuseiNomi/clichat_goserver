@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -31,20 +32,22 @@ func (r *room) Run() {
 		select {
 		case client := <-r.join:
 			// ルームへの参加
-			log.Println("チャットルームへ参加します")
+			str := fmt.Sprintf("%sさん が参加しました", client.name)
+			log.Println(str)
 			r.clients[client] = true
 		case client := <-r.leave:
 			// ルームからの退出
-			log.Println("チャットルームから退出します")
+			str := fmt.Sprintf("%sさん が退出しました", client.name)
+			log.Println(str)
 			r.clients[client] = true
 			delete(r.clients, client)
 			close(client.send)
 		case msg := <-r.forward:
+			log.Println("メッセージを受信:", string(msg))
 			// 全てのクライアントへのメッセージの転送
 			for client := range r.clients {
 				select {
 				case client.send <- msg:
-					log.Println("メッセージを受信しました:", string(msg))
 				default:
 					delete(r.clients, client)
 					close(client.send)
@@ -57,11 +60,17 @@ func (r *room) Run() {
 // ServeHTTP ルームのアップグレードを行う
 func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	socket, err := upgrader.Upgrade(w, req, nil)
+
+	// QueryStringの抽出
+	queryString := req.URL.Query()
+	value, _ := queryString["name"]
+
 	if err != nil {
 		log.Fatal("ServeHttp: ", err)
 		return
 	}
 	client := &Client{
+		name:   value[0],
 		socket: socket,
 		send:   make(chan []byte, messageBufferSize),
 		room:   r,

@@ -10,6 +10,7 @@ var addr = flag.String("addr", "go-chat-server:8080", "http service address")
 
 // Client チャットを行う1人のユーザを表す
 type Client struct {
+	name string // クライアントの名前を格納するフィールド
 	// クライアントのためのWebSocket
 	socket *websocket.Conn
 	// メッセージが送られるチャネル
