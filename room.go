@@ -43,11 +43,11 @@ func (r *room) Run() {
 			delete(r.clients, client)
 			close(client.send)
 		case msg := <-r.forward:
-			log.Println("メッセージを受信:", string(msg))
+			log.Println("メッセージを転送:", string(msg))
 			// 全てのクライアントへのメッセージの転送
 			for client := range r.clients {
 				select {
-				case client.send <- msg:
+				case client.send <- msg: //TODO 送信者名もmsgに含める
 				default:
 					delete(r.clients, client)
 					close(client.send)

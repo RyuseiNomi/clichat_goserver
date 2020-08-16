@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 
 	"github.com/gorilla/websocket"
 )
@@ -19,8 +20,7 @@ type Client struct {
 	room *room
 }
 
-// Read WebSocketへの書き込みを行う
-// ここでは、全てのクライアントの送信済みメッセージを読み込んでいる
+// Read クライアントのWebsocketからデータの読み込みを行う
 func (c *Client) Read() {
 	for {
 		if _, msg, err := c.socket.ReadMessage(); err == nil {
@@ -32,11 +32,12 @@ func (c *Client) Read() {
 	c.socket.Close()
 }
 
-// Write WebSocketへの書き込みを行う。
-// ここでは主に、メッセージを送信する際にルームに在籍しているメンバー全員に転送をする処理を読んでいる
+// Write 継続的にsendチャネルからメッセージを受け取り、Websocketへの書き込みを行う
 func (c *Client) Write() {
 	for msg := range c.send {
+		log.Println("Websocketへの書き込みを実行")
 		if err := c.socket.WriteMessage(websocket.TextMessage, msg); err != nil {
+			// TODO クライアントへの転送処理を書く
 			break
 		}
 	}
