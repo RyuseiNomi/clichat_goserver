@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"log"
 
 	"github.com/gorilla/websocket"
 )
@@ -35,9 +34,7 @@ func (c *Client) Read() {
 // Write 継続的にsendチャネルからメッセージを受け取り、Websocketへの書き込みを行う
 func (c *Client) Write() {
 	for msg := range c.send {
-		log.Println("Websocketへの書き込みを実行")
 		if err := c.socket.WriteMessage(websocket.TextMessage, msg); err != nil {
-			// TODO クライアントへの転送処理を書く
 			break
 		}
 	}
