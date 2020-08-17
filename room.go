@@ -35,11 +35,16 @@ func (r *room) Run() {
 			str := fmt.Sprintf("%sさん が参加しました", client.name)
 			log.Println(str)
 			r.clients[client] = true
+			for client := range r.clients {
+				client.send <- []byte(str)
+			}
 		case client := <-r.leave:
 			// ルームからの退出
 			str := fmt.Sprintf("%sさん が退出しました", client.name)
 			log.Println(str)
-			r.clients[client] = true
+			for client := range r.clients {
+				client.send <- []byte(str)
+			}
 			delete(r.clients, client)
 			close(client.send)
 		case msg := <-r.forward:
